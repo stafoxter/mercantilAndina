@@ -9,21 +9,22 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.ma.pedidos.domain.Estado;
 import com.ma.pedidos.domain.Pedido;
 import com.ma.pedidos.domain.PedidoDetalle;
 import com.ma.pedidos.domain.Producto;
-import com.ma.pedidos.dtos.PedidoDetalleDTO;
 import com.ma.pedidos.dtos.PedidoDTO;
+import com.ma.pedidos.dtos.PedidoDetalleDTO;
 import com.ma.pedidos.repositories.IPedidoRepository;
 import com.ma.pedidos.repositories.IProductoRepository;
 import com.ma.pedidos.services.IPedidoService;
+
 
 @Service
 public class PedidoServiceImpl implements IPedidoService{
@@ -31,40 +32,47 @@ public class PedidoServiceImpl implements IPedidoService{
 	private static final int CANT_MAX_SIN_DESCUENTO = 3;
 	private static final float PORCENTAJE_DESCUENTO = 30;
 
+	private static final Logger logger = LogManager.getLogger(PedidoServiceImpl.class);
+	
 	@Autowired
 	private IPedidoRepository pedidoRepository;
 	
 	@Autowired
 	private IProductoRepository productoRepository;
 	
+	@Transactional
 	@Override
 	public PedidoDTO createPedido(PedidoDTO pedidoDTO) {
-//		PedidoDTO pedidoDTOPersist = null;
-//		try {
-//		Pedido pedidoPersist = pedidoRepository.save(this.convertDTOtoPedido(pedidoDTO));
-//		pedidoDTOPersist = convertPedidotoDTO(pedidoPersist);
-//		}catch(ConstraintViolationException cve) {
-//	         System.out.println("--> No se ha podido insertar el profesor debido a los siguientes errores:");
-//	         for (ConstraintViolation constraintViolation : cve.getConstraintViolations()) {
-//	             System.out.println("En el campo '" + constraintViolation.getPropertyPath() + "':" + constraintViolation.getMessage());
-//	         }			
-//		}catch(Exception e) {
-//			System.out.println("--> Error:"+e.getMessage());
-//			e.printStackTrace();
-//		}
-		
-
-		Pedido pedidoPersist = pedidoRepository.save(this.convertDTOtoPedido(pedidoDTO));
-		PedidoDTO pedidoDTOPersist = convertPedidotoDTO(pedidoPersist);
-		
-		return pedidoDTOPersist;
-
+		PedidoDTO resul = null;
+		try {
+			Pedido pedidoPersist = pedidoRepository.save(this.convertDTOtoPedido(pedidoDTO));	
+			resul = convertPedidotoDTO(pedidoPersist);
+		}catch(Exception e) {
+			logger.error(e.getMessage(), e);
+		}
+		return resul;
 	}
 
 	@Override
-	public Optional<List<Pedido>> listPedidos(String fecha) {
-		return pedidoRepository.findByFechaAlta(LocalDate.parse(fecha));
+	public List<PedidoDTO> listPedidos(String fecha) {
+		Optional<List<Pedido>> pedidosPersist =null;
+		List<PedidoDTO> pedidosDTO = null;
+		PedidoDTO pedidoDTO = null;
+		try {
+			pedidosPersist = pedidoRepository.findByFechaAlta(LocalDate.parse(fecha));
+			if(pedidosPersist.isPresent()) {
+				pedidosDTO = new ArrayList<>();
+				for (Pedido pedido : pedidosPersist.get()) {
+					pedidoDTO = this.convertPedidotoDTO(pedido);
+					pedidoDTO.setEstado(null);
+					pedidosDTO.add(pedidoDTO);
+				}
+			}			
+		}catch(Exception e) {
+			logger.error(e.getMessage(), e);
+		}
 
+		return pedidosDTO;
 	}
 
 	private double calcularImporteTotalPedido(Pedido pedido) {
@@ -101,7 +109,7 @@ public class PedidoServiceImpl implements IPedidoService{
 	}
 	
 	private Pedido convertDTOtoPedido(PedidoDTO pedidoDTO) {
-		LocalTime horaActual = LocalTime.now();
+
 		Pedido pedido = null;
 		if(pedidoDTO == null)
 			return null;
@@ -110,7 +118,8 @@ public class PedidoServiceImpl implements IPedidoService{
 		pedido.setDireccion(pedidoDTO.getDireccion());
 		pedido.setEmail(pedidoDTO.getEmail());
 		pedido.setEstado(Estado.PENDIENTE);
-		pedido.setFechaAlta(LocalDate.now());
+		pedido.setFechaAlta(pedidoDTO.getFecha() != null ?
+				LocalDate.parse(pedidoDTO.getFecha()) : LocalDate.now());
 		pedido.setHorario( pedidoDTO.getHorario() != null ?
 				 LocalTime.parse(pedidoDTO.getHorario(), DateTimeFormatter.ofPattern("H:mm")) : 
 					 LocalTime.now() );
@@ -204,6 +213,11 @@ public class PedidoServiceImpl implements IPedidoService{
 		}
 		
 		pedidoDTO.setDetalle(detallesPedidoDTO);		
+	}
+
+	@Override
+	public void deleteAll() {
+		pedidoRepository.deleteAll();	
 	}
 	
 }

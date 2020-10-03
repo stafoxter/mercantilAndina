@@ -2,7 +2,6 @@ package com.ma.pedidos.controller.response;
 
 public class ErrorResponse {
 	private String error;
-
 	
 	public ErrorResponse(String error) {
 		super();

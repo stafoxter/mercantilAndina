@@ -13,6 +13,4 @@ import com.ma.pedidos.domain.Pedido;
 @Repository
 public interface IPedidoRepository extends JpaRepository<Pedido, UUID> {
 	Optional<List<Pedido>> findByFechaAlta (LocalDate fechaAlta);
-	
-
 }

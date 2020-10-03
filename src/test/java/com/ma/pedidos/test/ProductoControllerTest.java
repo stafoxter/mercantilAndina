@@ -3,14 +3,16 @@ package com.ma.pedidos.test;
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.equalTo;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 
 import io.restassured.http.ContentType;
 
+@DisplayName("Producto Controller")
 public class ProductoControllerTest {
 	
-	static final String URL = "http://localhost:8888/mercantilandina/productos";
+	static final String URL_PRODUCTOS = "http://localhost:8888/mercantilandina/productos";
     
     @Test
     @Order(1)
@@ -22,7 +24,7 @@ public class ProductoControllerTest {
         given()
             .contentType(ContentType.JSON)
             .body(json)
-            .post(URL)
+            .post(URL_PRODUCTOS)
         .then()
             .statusCode(201);
     } 
@@ -38,7 +40,7 @@ public class ProductoControllerTest {
         given()
             .contentType(ContentType.JSON)
             .body(json)
-            .put(URL+"/89efb206-2aa6-4e21-8a23-5765e3de1f31")
+            .put(URL_PRODUCTOS+"/89efb206-2aa6-4e21-8a23-5765e3de1f31")
         .then()
             .statusCode(204);
     }    
@@ -50,7 +52,7 @@ public class ProductoControllerTest {
         given()
             .contentType(ContentType.JSON)
         .when()
-            .get(URL+"/89efb206-2aa6-4e21-8a23-5765e3de1f31")
+            .get(URL_PRODUCTOS+"/89efb206-2aa6-4e21-8a23-5765e3de1f31")
         .then().assertThat()
             .statusCode(200)
             .body("id", equalTo("89efb206-2aa6-4e21-8a23-5765e3de1f31"))
@@ -67,7 +69,7 @@ public class ProductoControllerTest {
         given()
             .contentType(ContentType.JSON)          
         .when()
-            .get(URL+"/1111b206-2aa6-4e21-8a23-5765e3de1f30")
+            .get(URL_PRODUCTOS+"/1111b206-2aa6-4e21-8a23-5765e3de1f30")
         .then()
             .statusCode(404)
             .body("error", equalTo("Producto no encontrado"));
@@ -79,10 +81,9 @@ public class ProductoControllerTest {
         given()
             .contentType(ContentType.JSON)          
         .when()
-            .delete(URL+"/89efb206-2aa6-4e21-8a23-5765e3de1f31")
+            .delete(URL_PRODUCTOS+"/89efb206-2aa6-4e21-8a23-5765e3de1f31")
         .then()
             .statusCode(204);
     }  
-    
     
 }

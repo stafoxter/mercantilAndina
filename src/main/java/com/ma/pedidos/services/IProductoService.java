@@ -6,8 +6,7 @@ import java.util.UUID;
 import com.ma.pedidos.domain.Producto;
 
 public interface IProductoService {
-	public boolean createProducto(Producto producto);
-	public boolean updateProducto(Producto producto);
+	public boolean saveProducto(Producto producto);
 	public Optional<Producto> getProducto(UUID id);
 	public boolean deleteProducto(UUID id);	
 }

@@ -6,10 +6,12 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder({"fecha","direccion", "email","telefono", 
 				"horario","detalle","total", "descuento","estado"})
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class PedidoDTO implements Serializable{
 	/**
 	 * 

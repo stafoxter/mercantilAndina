@@ -3,18 +3,15 @@ package com.ma.pedidos.domain;
 import java.io.Serializable;
 import java.util.UUID;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name="PEDIDOS_DETALLE")
@@ -28,14 +25,9 @@ public class PedidoDetalle implements Serializable {
 	@Id
 	@GeneratedValue
 	private UUID id;
-	
-  /*  @ManyToOne(fetch = FetchType.LAZY, optional = false)  
-	@JoinColumn(name = "PEDIDO_CABECERA_ID", nullable = false)
-	private Pedido pedido;
-*/
-	
+
     @JoinColumn(name = "PRODUCTO_ID", nullable = false)
-    @ManyToOne(optional = false, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY) 
 	private Producto producto;
 	
 	@Column(name = "CANTIDAD")
@@ -44,11 +36,6 @@ public class PedidoDetalle implements Serializable {
 	
 	@Column(name = "PRECIO_UNITARIO")
 	private double precioUnitario;
-
-	//nuevo atributo
-	@ManyToOne()
-	@JoinColumn(name="id", referencedColumnName = "id", insertable = false, updatable = false)    
-	private Pedido pedido;
 
 	public UUID getId() {
 		return id;
@@ -82,15 +69,5 @@ public class PedidoDetalle implements Serializable {
 	public void setPrecioUnitario(double precioUnitario) {
 		this.precioUnitario = precioUnitario;
 	}
-
-	public Pedido getPedido() {
-		return pedido;
-	}
-
-	public void setPedido(Pedido pedido) {
-		this.pedido = pedido;
-	}	
-	
-	
 
 }

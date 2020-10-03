@@ -13,17 +13,17 @@ public class ErroresResponse {
 	}	
 	public ErroresResponse() { }
 	
-	public ErroresResponse(List<ErrorResponse> errrores) {
+	public ErroresResponse(List<ErrorResponse> errores) {
 		super();
-		this.errores = errrores;
+		this.errores = errores;
 	}
 
-	public List<ErrorResponse> getErrrores() {
+	public List<ErrorResponse> getErrores() {
 		return errores;
 	}
 
-	public void setErrrores(List<ErrorResponse> errrores) {
-		this.errores = errrores;
+	public void setErrores(List<ErrorResponse> errores) {
+		this.errores = errores;
 	}
 	
 	

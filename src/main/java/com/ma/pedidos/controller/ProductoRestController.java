@@ -1,6 +1,5 @@
 package com.ma.pedidos.controller;
 
-import org.springframework.http.HttpStatus;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -9,6 +8,7 @@ import java.util.UUID;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ma.pedidos.controller.response.ErrorResponse;
-import com.ma.pedidos.controller.response.ErroresResponse;
 import com.ma.pedidos.domain.Producto;
 import com.ma.pedidos.services.IProductoService;
 
@@ -41,7 +40,7 @@ public class ProductoRestController {
 	@ApiOperation(value = "Crear un producto")
 	@PostMapping(path = "")
 	public ResponseEntity<Object> crearProducto(@Valid @RequestBody Producto producto) {
-		if(productoService.createProducto(producto)) {
+		if(productoService.saveProducto(producto)) {
 			return ResponseEntity.status(201).body(null);
 		} else {
 			return ResponseEntity.status(404).body(null);
@@ -52,7 +51,7 @@ public class ProductoRestController {
 	@PutMapping(path = "/{id}")
 	public ResponseEntity<Object> modificarProducto(@PathVariable("id") UUID id, @RequestBody Producto producto) {
 		producto.setId(id);
-		if(productoService.updateProducto(producto)) {
+		if(productoService.saveProducto(producto)) {
 			return ResponseEntity.status(204).body(null);
 		}else {
 			return ResponseEntity.status(404).body("Error al modificar el Producto");

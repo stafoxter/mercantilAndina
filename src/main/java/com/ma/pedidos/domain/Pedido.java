@@ -3,7 +3,6 @@ package com.ma.pedidos.domain;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,13 +11,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name="PEDIDOS_CABECERA")
@@ -56,10 +52,8 @@ public class Pedido  implements Serializable{
     @Column(name = "ESTADO", length = 20, nullable = false)
     @Enumerated(EnumType.STRING)
 	private Estado estado;	
-	
-	//@OneToMany(mappedBy = "PEDIDO_CABECERA_ID", fetch = FetchType.LAZY, cascade = CascadeType.ALL )
-    //@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true )
-    @OneToMany(targetEntity=PedidoDetalle.class, mappedBy="pedido",cascade=CascadeType.ALL, fetch = FetchType.LAZY) 
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true )
 	private List<PedidoDetalle> pedidoDetalles;
 
 	public UUID getId() {
