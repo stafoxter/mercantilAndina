@@ -14,13 +14,20 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name="PEDIDOS_CABECERA")
 public class Pedido  implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8029044539977554525L;
+
 	@Id
 	@GeneratedValue
 	private UUID id;
@@ -51,7 +58,8 @@ public class Pedido  implements Serializable{
 	private Estado estado;	
 	
 	//@OneToMany(mappedBy = "PEDIDO_CABECERA_ID", fetch = FetchType.LAZY, cascade = CascadeType.ALL )
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true )
+    //@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true )
+    @OneToMany(targetEntity=PedidoDetalle.class, mappedBy="pedido",cascade=CascadeType.ALL, fetch = FetchType.LAZY) 
 	private List<PedidoDetalle> pedidoDetalles;
 
 	public UUID getId() {

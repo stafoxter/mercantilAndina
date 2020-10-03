@@ -3,16 +3,25 @@ package com.ma.pedidos.dtos;
 import java.io.Serializable;
 import java.util.List;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 @JsonPropertyOrder({"fecha","direccion", "email","telefono", 
 				"horario","detalle","total", "descuento","estado"})
 public class PedidoDTO implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7408754777748026L;
 	private String fecha;
+	@NotNull(message = "la direccion no puede estar nula")
 	private String direccion;
 	private String email;
 	private String telefono;
 	private String horario;
+	@Valid
 	private List<PedidoDetalleDTO> detalle;
 	private double total;
 	private boolean descuento;

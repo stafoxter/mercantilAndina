@@ -2,8 +2,17 @@ package com.ma.pedidos.dtos;
 
 import java.io.Serializable;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 public class PedidoDetalleDTO implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 8652447804839502469L;
 	private String producto;
+	@Min(value = 1, message = "falta ingresar cantidad")
+	@NotNull(message = "falta ingresar cantidad")
 	private int cantidad;
 	private String nombre;
 	private double importe;

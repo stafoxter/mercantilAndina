@@ -9,6 +9,9 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +21,6 @@ import com.ma.pedidos.domain.PedidoDetalle;
 import com.ma.pedidos.domain.Producto;
 import com.ma.pedidos.dtos.PedidoDetalleDTO;
 import com.ma.pedidos.dtos.PedidoDTO;
-import com.ma.pedidos.exceptions.ProductNotFoundException;
 import com.ma.pedidos.repositories.IPedidoRepository;
 import com.ma.pedidos.repositories.IProductoRepository;
 import com.ma.pedidos.services.IPedidoService;
@@ -37,16 +39,26 @@ public class PedidoServiceImpl implements IPedidoService{
 	
 	@Override
 	public PedidoDTO createPedido(PedidoDTO pedidoDTO) {
-		try {
-			Pedido pedidoPersist = pedidoRepository.save(this.convertDTOtoPedido(pedidoDTO));
-			
-			return convertPedidotoDTO(pedidoPersist);
-			
-		} catch (ProductNotFoundException e) {
-			
-			e.printStackTrace();
-		}
-		return null;
+//		PedidoDTO pedidoDTOPersist = null;
+//		try {
+//		Pedido pedidoPersist = pedidoRepository.save(this.convertDTOtoPedido(pedidoDTO));
+//		pedidoDTOPersist = convertPedidotoDTO(pedidoPersist);
+//		}catch(ConstraintViolationException cve) {
+//	         System.out.println("--> No se ha podido insertar el profesor debido a los siguientes errores:");
+//	         for (ConstraintViolation constraintViolation : cve.getConstraintViolations()) {
+//	             System.out.println("En el campo '" + constraintViolation.getPropertyPath() + "':" + constraintViolation.getMessage());
+//	         }			
+//		}catch(Exception e) {
+//			System.out.println("--> Error:"+e.getMessage());
+//			e.printStackTrace();
+//		}
+		
+
+		Pedido pedidoPersist = pedidoRepository.save(this.convertDTOtoPedido(pedidoDTO));
+		PedidoDTO pedidoDTOPersist = convertPedidotoDTO(pedidoPersist);
+		
+		return pedidoDTOPersist;
+
 	}
 
 	@Override
@@ -55,7 +67,7 @@ public class PedidoServiceImpl implements IPedidoService{
 
 	}
 
-	private double calcularImporteTotalPedido(Pedido pedido) throws ProductNotFoundException {
+	private double calcularImporteTotalPedido(Pedido pedido) {
 		double total = this.getImporteTotalPedido(pedido);
 		if(this.aplicaDescuento(pedido)) {
 			return total * (100-PORCENTAJE_DESCUENTO)/100;
@@ -71,39 +83,6 @@ public class PedidoServiceImpl implements IPedidoService{
 		
 		return 0;
 	}
-	
-//	private double getImporteTotalPedido(PedidoDTO pedido) throws ProductNotFoundException {
-//		double total = 0;
-//		List<PedidoDetalleDTO> detalleDTO;
-//		List<UUID> ids = new ArrayList<>();
-//
-//		for (PedidoDetalleDTO det : pedido.getDetalle()) {
-//			ids.add(UUID.fromString(det.getProducto()));
-//		}
-//		List<Producto> productos = productoRepository.findAllById(ids);
-//		
-//		for (Producto prod : productos) {
-//			
-//			detalleDTO = pedido.getDetalle().stream().filter(d -> 
-//					UUID.fromString(d.getProducto()).compareTo(prod.getId()) == 0 )
-//					.collect(Collectors.toList());
-//			
-//			// Si se selecciono un producto no registrado
-//			if(detalleDTO.isEmpty()) 
-//				throw new ProductNotFoundException ("Solicito un producto inexistente");
-//			
-//			// Si el producto esta en más de un detalle
-//			if(detalleDTO.size() > 1) {
-//				total += (prod.getPrecioUnitario() * detalleDTO.stream().mapToInt(o -> o.getCantidad()).sum() );
-//				
-//			// Si el producto esta en un sólo detalle
-//			}else {
-//				total += (prod.getPrecioUnitario() * detalleDTO.get(0).getCantidad());
-//			}					
-//		}
-//		
-//		return total;
-//	}
 	
 	private double getImporteTotalPedido(Pedido pedido) {
 		if(pedido != null && pedido.getPedidoDetalles() != null)
@@ -121,7 +100,8 @@ public class PedidoServiceImpl implements IPedidoService{
 		}
 	}
 	
-	private Pedido convertDTOtoPedido(PedidoDTO pedidoDTO) throws ProductNotFoundException {
+	private Pedido convertDTOtoPedido(PedidoDTO pedidoDTO) {
+		LocalTime horaActual = LocalTime.now();
 		Pedido pedido = null;
 		if(pedidoDTO == null)
 			return null;
@@ -131,8 +111,9 @@ public class PedidoServiceImpl implements IPedidoService{
 		pedido.setEmail(pedidoDTO.getEmail());
 		pedido.setEstado(Estado.PENDIENTE);
 		pedido.setFechaAlta(LocalDate.now());
-		//pedido.setHorario( LocalTime.parse(pedidoDTO.getHorario(), DateTimeFormatter.ISO_TIME));	
-		pedido.setHorario( LocalTime.parse(pedidoDTO.getHorario(), DateTimeFormatter.ofPattern("H:mm")));
+		pedido.setHorario( pedidoDTO.getHorario() != null ?
+				 LocalTime.parse(pedidoDTO.getHorario(), DateTimeFormatter.ofPattern("H:mm")) : 
+					 LocalTime.now() );
 		pedido.setTelefono(pedidoDTO.getTelefono());
 		
 		this.agregarDetallesPedido(pedidoDTO, pedido);
@@ -145,7 +126,10 @@ public class PedidoServiceImpl implements IPedidoService{
 	}
 	
 
-	private void agregarDetallesPedido(PedidoDTO pedidoDTO, Pedido pedido) throws ProductNotFoundException {
+	private void agregarDetallesPedido(PedidoDTO pedidoDTO, Pedido pedido) {
+		if(pedidoDTO.getDetalle() == null) 
+			return;
+		
 		List<PedidoDetalle> detallesPedido = new ArrayList<>();
 		PedidoDetalle itemDetalle = null;
 		List<PedidoDetalleDTO> detalleDTO;
@@ -164,23 +148,22 @@ public class PedidoServiceImpl implements IPedidoService{
 					UUID.fromString(d.getProducto()).compareTo(prod.getId()) == 0 )
 					.collect(Collectors.toList());
 			
-			// Si se selecciono un producto no registrado
-			if(detalleDTO.isEmpty()) 
-				throw new ProductNotFoundException ("Solicito un producto inexistente");
-			
-			// Si el producto esta en más de un detalle
-			if(detalleDTO.size() > 1) {			
-				itemDetalle.setCantidad(detalleDTO.stream().mapToInt(o -> o.getCantidad()).sum());
+			// Si se selecciono un producto registrado
+			if(!detalleDTO.isEmpty()) { 
 
-			// Si el producto esta en un sólo detalle
-			}else {
-				itemDetalle.setCantidad(detalleDTO.get(0).getCantidad());
-			}	
-			
-			itemDetalle.setPrecioUnitario(prod.getPrecioUnitario() * itemDetalle.getCantidad());
-			
-			detallesPedido.add(itemDetalle);		
-
+				// Si el producto esta en más de un detalle
+				if(detalleDTO.size() > 1) {			
+					itemDetalle.setCantidad(detalleDTO.stream().mapToInt(o -> o.getCantidad()).sum());
+	
+				// Si el producto esta en un sólo detalle
+				}else {
+					itemDetalle.setCantidad(detalleDTO.get(0).getCantidad());
+				}	
+				
+				itemDetalle.setPrecioUnitario(prod.getPrecioUnitario() * itemDetalle.getCantidad());
+				
+				detallesPedido.add(itemDetalle);		
+			}
 		}
 		pedido.setPedidoDetalles(detallesPedido);
 		
@@ -196,7 +179,6 @@ public class PedidoServiceImpl implements IPedidoService{
 		pedidoDTO.setEmail(pedido.getEmail());
 		pedidoDTO.setEstado(pedido.getEstado().toString());
 		pedidoDTO.setFecha(pedido.getFechaAlta().format(DateTimeFormatter.ISO_LOCAL_DATE));
-		//pedidoDTO.setHorario( pedido.getHorario().format(DateTimeFormatter.ISO_LOCAL_TIME));	
 		pedidoDTO.setHorario( pedido.getHorario().format(DateTimeFormatter.ofPattern("H:mm")));	
 		pedidoDTO.setTelefono(pedido.getTelefono());
 		pedidoDTO.setTotal(pedido.getMontoTotal());

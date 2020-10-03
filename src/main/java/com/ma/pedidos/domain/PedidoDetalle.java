@@ -8,15 +8,23 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name="PEDIDOS_DETALLE")
 public class PedidoDetalle implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7696512467081810428L;
+
 	@Id
 	@GeneratedValue
 	private UUID id;
@@ -31,10 +39,16 @@ public class PedidoDetalle implements Serializable {
 	private Producto producto;
 	
 	@Column(name = "CANTIDAD")
+	@Min(value = 1, message = "falta ingresar cantidad")
 	private int cantidad;
 	
 	@Column(name = "PRECIO_UNITARIO")
 	private double precioUnitario;
+
+	//nuevo atributo
+	@ManyToOne()
+	@JoinColumn(name="id", referencedColumnName = "id", insertable = false, updatable = false)    
+	private Pedido pedido;
 
 	public UUID getId() {
 		return id;
@@ -57,7 +71,7 @@ public class PedidoDetalle implements Serializable {
 		return cantidad;
 	}
 
-	public void setCantidad(int cantidad) {
+	public void setCantidad(@Min(value = 1, message = "falta ingresar cantidad") int cantidad) {
 		this.cantidad = cantidad;
 	}
 
@@ -67,6 +81,14 @@ public class PedidoDetalle implements Serializable {
 
 	public void setPrecioUnitario(double precioUnitario) {
 		this.precioUnitario = precioUnitario;
+	}
+
+	public Pedido getPedido() {
+		return pedido;
+	}
+
+	public void setPedido(Pedido pedido) {
+		this.pedido = pedido;
 	}	
 	
 	

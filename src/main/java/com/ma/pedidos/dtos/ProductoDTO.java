@@ -7,6 +7,11 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({"id","nombre", "descripcionCorta",
 		"descripcionLarga", "precioUnitario"})
 public class ProductoDTO implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 9046888354042620226L;
+	
 	private String id;
 	private String nombre;
 	private String descripcionCorta;
