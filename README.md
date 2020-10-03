@@ -1,3 +1,24 @@
+# INFORMACION
+
+Aplicación desarrollada con Spring Boot que provee servicios Rest para la gestión de pedidos y productos.
+
+## Para iniciar la aplicación:
+1. Compilar la aplicación: mvn clean install -DskipTests 
+2. Ejecutar archivo jar compilado (\mercantilAndina\target): java -jar pedidos-0.0.1-SNAPSHOT.jar
+3. Para ejecutar las pruebas: mvn test
+
+## Deploy productivo
+1. Modificar el ambiente de ejecución en el archivo "application.properties": spring.profiles.active=prod
+2. Especificar la información del ambiente productivo en el archivo "application-prod.properties"
+
+## Swagger
+http://localhost:8888/mercantilandina/swagger-ui.html#/
+
+## Propuestas de mejora
+- Implementar una estrategia para la aplicación de descuentos. Para contemplar la aplicación de descuentos que tengan distintas fórmulas de cálculo.
+- Implementar el patrón Estado para los estados del pedido. Para que según el estado se notifique a los distintos involucrados
+
+# CONSIGNA 
 ## Introducción 
 La tarea consiste en implementar un set de endpoints de una API Rest mediante Spring Boot.
 
